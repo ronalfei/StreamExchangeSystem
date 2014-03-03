@@ -6,13 +6,13 @@
 start()->
     lager:start(), 
     application:start(ranch), 
-lager:info("ranch ok"),
+    lager:info("ranch ok"),
     application:start(cowlib),
-lager:info("cowlib ok"),
+    lager:debug("cowlib ok"),
     application:start(crypto),
-lager:info("crypto ok"),
+    lager:warning("crypto ok"),
     application:start(cowboy),
-lager:info("cowboy ok"),
+    lager:error("cowboy ok"),
     application:start(websocket).
 
 start_link()->
@@ -22,4 +22,13 @@ stop()->
     application:stop(websocket).
 
 test() ->
-    lager:info("asdfasdf").
+    lager:debug("asdfasdf"),
+    lager:info("asdfasdf"),
+    lager:notice("asdfasdf"),
+    lager:warning("asdfasdf"),
+    lager:error("asdfasdf"),
+    lager:critical("asdfasdf"),
+    lager:alert("asdfasdf"),
+    lager:emergency("asdfasdf"),
+    ok.
+

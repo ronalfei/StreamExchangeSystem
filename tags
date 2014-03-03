@@ -4274,10 +4274,6 @@ kv_keys_	./deps/goldrush/src/gre.erl	/^kv_keys_([{Key, _}|T]) ->$/;"	f	module:gr
 kv_keys_	./deps/lager/deps/goldrush/src/gre.erl	/^kv_keys_([]) ->$/;"	f	module:gre
 kv_keys_	./deps/lager/deps/goldrush/src/gre.erl	/^kv_keys_([{Key, _}|T]) ->$/;"	f	module:gre
 lager	./deps/lager/src/lager.erl	/^-module(lager).$/;"	m
-lager:info	./src/ses.erl	/^lager:info("cowboy ok"),$/;"	f	module:ses
-lager:info	./src/ses.erl	/^lager:info("cowlib ok"),$/;"	f	module:ses
-lager:info	./src/ses.erl	/^lager:info("crypto ok"),$/;"	f	module:ses
-lager:info	./src/ses.erl	/^lager:info("ranch ok"),$/;"	f	module:ses
 lager_app	./deps/lager/src/lager_app.erl	/^-module(lager_app).$/;"	m
 lager_backend_throttle	./deps/lager/src/lager_backend_throttle.erl	/^-module(lager_backend_throttle).$/;"	m
 lager_config	./deps/lager/src/lager_config.erl	/^-module(lager_config).$/;"	m
