@@ -30,5 +30,12 @@ test() ->
     lager:critical("asdfasdf"),
     lager:alert("asdfasdf"),
     lager:emergency("asdfasdf"),
+    f(10000),
+
     ok.
 
+f(0) ->
+    ok;
+f(N) ->
+    ws_client:start_link(),
+    f(N-1).

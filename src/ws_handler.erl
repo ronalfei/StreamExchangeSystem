@@ -14,14 +14,27 @@ websocket_init(_TransportName, Req, _Opts) ->
 	erlang:start_timer(1000, self(), <<"Hello!">>),
 	{ok, Req, undefined_state}.
 
+
+websocket_handle({text, <<"alive">>}, Req, State) ->
+    lager:info("alive"),
+	{ok, Req, State};
+
 websocket_handle({text, Msg}, Req, State) ->
-	{reply, {text, << "That's what she said! ", Msg/binary >>}, Req, State};
+	%{reply, {text, << "receive", Msg/binary >>}, Req, State};
+	{ok, Req, State};
+
+websocket_handle({binary, Bin}, Req, State) ->
+    lager:warning("Binary Stream ~p", [Bin]),
+	{reply, {text, <<"good">>}, Req, State};
+
 websocket_handle(_Data, Req, State) ->
+    lager:warning("Stream ~p", [_Data]),
 	{ok, Req, State}.
 
 websocket_info({timeout, _Ref, Msg}, Req, State) ->
-	erlang:start_timer(1000, self(), <<"How' you doin'?">>),
+	erlang:start_timer(30000, self(), <<"alive">>),
 	{reply, {text, Msg}, Req, State};
+
 websocket_info(_Info, Req, State) ->
 	{ok, Req, State}.
 
