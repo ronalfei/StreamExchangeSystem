@@ -17,9 +17,8 @@ websocket_init(_TransportName, Req, _Opts) ->
 
 
 websocket_handle({text, <<"RECEIVE#", MyUserid/binary>>}, Req, _State) ->
-    check_ets(pid_map),
     NewState = <<"RECEIVE#", MyUserid/binary>>,
-    insert_ets(pid_map, {NewState, self()}),   %把自己的pid放进去
+    pid_manager:add_pid({NewState, self()}),   %把自己的pid放进去
     {reply, {text, <<"OK">>}, Req, NewState};
 
 websocket_handle({text, _Msg}, Req, State) ->
@@ -54,32 +53,3 @@ websocket_info(Info, Req, State) ->
 
 websocket_terminate(_Reason, _Req, _State) ->
 	ok.
-
-
-
-%%------------- ets intenal function------------
-init_ets(TableName) ->
-    Name = TableName,
-    Options = [set, public, named_table, {read_concurrency, true} ],
-    ets:new(Name, Options),
-    Leader = group_leader(),
-    lager:warning(" group leader for this connnection is ~p", [Leader]),
-    ets:give_away(Name, Leader, []).
-
-
-check_ets(TableName) ->
-    case ets:info(TableName) of
-        undefined ->
-            init_ets(TableName);
-        _ -> ok
-    end.
-
-insert_ets(TableName, Tuple) ->
-    ets:insert(TableName, Tuple).
-
-get_pid(TableName, Key) ->
-    case ets:lookup(TableName, Key) of 
-        [{Key, Pid}] ->
-            {ok, Pid};
-        [] -> {error, <<"no pid found">>}
-    end.

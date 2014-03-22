@@ -18,11 +18,10 @@ lager:warning("self:~p", [self()]),
 
 
 websocket_handle({text, <<"SEND#", ToUserid/binary>>}, Req, State) ->
-    check_ets(pid_map),
-    case get_pid(pid_map, <<"RECEIVE#", ToUserid/binary>>) of 
+    case pid_manager:get_pid(<<"RECEIVE#", ToUserid/binary>>) of 
         {ok, Pid} ->
             NewState = {<<"SEND#">>, Pid},
-            insert_ets(pid_map, {NewState, self()}),%% 把发送流的进程插入到ets, 目前没有太大意义
+            pid_manager:add_pid({NewState, self()}),%% 把发送流的进程插入到ets, 目前没有太大意义
 lager:warning("111111111: ~p", [NewState]),
 	        {reply, {text, <<"GO">>}, Req, NewState};
         {error, Reason} ->
@@ -58,31 +57,3 @@ websocket_info(_Info, Req, State) ->
 websocket_terminate(_Reason, _Req, _State) ->
 	ok.
 
-
-
-%%------------- ets intenal function------------
-init_ets(TableName) ->
-    Name = TableName,
-    Options = [set, public, named_table, {read_concurrency, true} ],
-    ets:new(Name, Options),
-    Leader = group_leader(),
-    lager:warning(" group leader for this connnection is ~p", [Leader]),
-    ets:give_away(Name, Leader, []).
-
-
-check_ets(TableName) ->
-    case ets:info(TableName) of
-        undefined ->
-            init_ets(TableName);
-        _ -> ok
-    end.
-
-insert_ets(TableName, Tuple) ->
-    ets:insert(TableName, Tuple).
-
-get_pid(TableName, Key) ->
-    case ets:lookup(TableName, Key) of 
-        [{Key, Pid}] ->
-            {ok, Pid};
-        [] -> {error, <<"no pid found">>}
-    end.
