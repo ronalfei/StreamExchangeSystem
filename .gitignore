@@ -9,3 +9,4 @@ log/*
 *.log.*
 *.beam
 erl_crash.dump
+tags

@@ -37,5 +37,16 @@ test() ->
 f(0) ->
     ok;
 f(N) ->
-    ws_client:start_link(),
+    ws_client:start_link("127.0.0.2"),
+    ws_client:start_link("127.0.0.3"),
+    ws_client:start_link("127.0.0.4"),
+    ws_client:start_link("127.0.0.5"),
+    ws_client:start_link("127.0.0.6"),
+    ws_client:start_link("127.0.0.7"),
+    ws_client:start_link("10.100.120.210"),
+    ws_client:start_link("10.100.120.210"),
+    ws_client:start_link("10.100.120.210"),
+    ws_client:start_link("10.100.120.210"),
+    ws_client:start_link("10.100.120.210"),
+    ws_client:start_link("10.100.120.210"),
     f(N-1).
