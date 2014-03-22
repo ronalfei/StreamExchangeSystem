@@ -24,15 +24,21 @@ init([], _ConnState) ->
 websocket_handle({pong, _}, _ConnState, State) ->
     {ok, State};
 
+
+websocket_handle({text, <<"GO">>}, _ConnState, State) ->
+    %{reply, {text, Msg}, State}.
+    websocket_client:cast(self(), {text, <<"GO">>}),
+    {reply, {binary, <<"bbbbbbbb">>}, _ConnState, State};
+
+
 websocket_handle({text, Msg}, _ConnState, State) ->
-    io:format("receive from server : ~p", [Msg]),
+    io:format("receive from server : ~p~n", [Msg]),
     %{reply, {text, Msg}, State}.
     {ok, State}.
 
 
 
 websocket_info({text, Msg}, _ConnState, State) ->
-    erlang:start_timer(1000, self(), <<"alive2">>),
     {reply, {text, Msg}, _ConnState, State};
 
 websocket_info({timeout, _Ref, _Msg}, _ConnState, State) ->
@@ -50,7 +56,7 @@ websocket_terminate(Reason, _ConnState, State) ->
     ok.
 
 send() ->
-    {ok, Pid} = send_client:start_link("127.0.0.1"),
+    {ok, Pid} = ?MODULE:start_link("127.0.0.1"),
     websocket_client:cast(Pid , {text, <<"SEND#ronalfei">>}),
     ok.
     
