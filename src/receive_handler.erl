@@ -1,4 +1,5 @@
 -module(receive_handler).
+-include("ses.hrl").
 -behaviour(cowboy_websocket_handler).
 
 -export([init/3]).
@@ -34,12 +35,18 @@ websocket_handle(_Data, Req, State) ->
 
 
 
-websocket_info({timeout, _Ref, {binary, Bin}}, Req, State) ->
+websocket_info({binary, Bin}, Req, State) ->
 	{reply, {binary, Bin}, Req, State};
+
+
+websocket_info({text, Msg}, Req, State) ->
+	{reply, {text, Msg}, Req, State};
 
 
 websocket_info({timeout, _Ref, Msg}, Req, State) ->
 	{reply, {text, Msg}, Req, State};
+
+
 
 websocket_info(Info, Req, State) ->
     lager:warning("receive info : ~p", [Info]),
@@ -56,7 +63,7 @@ init_ets(TableName) ->
     Options = [set, public, named_table, {read_concurrency, true} ],
     ets:new(Name, Options),
     Leader = group_leader(),
-    lager:debug(" group leader for this connnection is ~p", [Leader]),
+    lager:warning(" group leader for this connnection is ~p", [Leader]),
     ets:give_away(Name, Leader, []).
 
 

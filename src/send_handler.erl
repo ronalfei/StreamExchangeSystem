@@ -1,4 +1,5 @@
 -module(send_handler).
+-include("ses.hrl").
 -behaviour(cowboy_websocket_handler).
 
 -export([init/3]).
@@ -12,6 +13,7 @@ init({tcp, http}, _Req, _Opts) ->
 
 websocket_init(_TransportName, Req, _Opts) ->
 	erlang:start_timer(0, self(), <<"HI">>),
+lager:warning("self:~p", [self()]),
 	{ok, Req, {} }.
 
 
@@ -21,18 +23,21 @@ websocket_handle({text, <<"SEND#", ToUserid/binary>>}, Req, State) ->
         {ok, Pid} ->
             NewState = {<<"SEND#">>, Pid},
             insert_ets(pid_map, {NewState, self()}),%% 把发送流的进程插入到ets, 目前没有太大意义
+lager:warning("111111111: ~p", [NewState]),
 	        {reply, {text, <<"GO">>}, Req, NewState};
         {error, Reason} ->
             {reply, {text, Reason}, Req, State}
     end;
 
-websocket_handle({text, Msg}, Req, State) ->
-	%{reply, {text, << "receive", Msg/binary >>}, Req, State};
-	{ok, Req, State};
+websocket_handle({text, Msg}, Req, {<<"SEND#">>, ToPid}) ->
+lager:warning("msg to Pid:~p", [ToPid]),
+    ToPid ! {text, Msg},
+	{ok, Req, {<<"SEND#">>, ToPid}};
 
 
 websocket_handle({binary, Bin}, Req, {<<"SEND#">>, ToPid}) ->
-    erlang:start_timer(0, ToPid, {binary, Bin}),
+    ToPid ! {binary, Bin},
+lager:warning("binary to Pid:~p", [ToPid]),
 	{ok, Req, {<<"SEND#">>, ToPid}};
 
 websocket_handle({binary, Bin}, Req, State) ->
@@ -61,7 +66,7 @@ init_ets(TableName) ->
     Options = [set, public, named_table, {read_concurrency, true} ],
     ets:new(Name, Options),
     Leader = group_leader(),
-    %lager:debug(" group leader for this connnection is ~p", [Leader]),
+    lager:warning(" group leader for this connnection is ~p", [Leader]),
     ets:give_away(Name, Leader, []).
 
 

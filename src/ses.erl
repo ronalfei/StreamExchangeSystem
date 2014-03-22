@@ -30,7 +30,7 @@ test() ->
     lager:critical("asdfasdf"),
     lager:alert("asdfasdf"),
     lager:emergency("asdfasdf"),
-    f(10000),
+    %f(10000),
 
     ok.
 
