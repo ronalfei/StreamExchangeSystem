@@ -11,15 +11,15 @@ init({tcp, http}, _Req, _Opts) ->
 	{upgrade, protocol, cowboy_websocket}.
 
 websocket_init(_TransportName, Req, _Opts) ->
-	erlang:start_timer(1000, self(), <<"HI">>),
-	{ok, Req, <<>>}.
+	erlang:start_timer(0, self(), <<"HI">>),
+	{ok, Req, {} }.
 
 
 websocket_handle({text, <<"SEND#", ToUserid/binary>>}, Req, State) ->
     check_ets(pid_map),
     case get_pid(pid_map, <<"RECEIVE#", ToUserid/binary>>) of 
         {ok, Pid} ->
-            NewState = <<"SEND#", Pid/binary>>,
+            NewState = {<<"SEND#">>, Pid},
             insert_ets(pid_map, {NewState, self()}),%% 把发送流的进程插入到ets, 目前没有太大意义
 	        {reply, {text, <<"GO">>}, Req, NewState};
         {error, Reason} ->
@@ -31,9 +31,9 @@ websocket_handle({text, Msg}, Req, State) ->
 	{ok, Req, State};
 
 
-websocket_handle({binary, Bin}, Req, <<"SEND#", ToPid/binary>>) ->
+websocket_handle({binary, Bin}, Req, {<<"SEND#">>, ToPid}) ->
     erlang:start_timer(0, ToPid, {binary, Bin}),
-	{ok, Req, <<"SEND#", ToPid/binary>>};
+	{ok, Req, {<<"SEND#">>, ToPid}};
 
 websocket_handle({binary, Bin}, Req, State) ->
 	{ok, Req, State};
