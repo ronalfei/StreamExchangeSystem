@@ -1,4 +1,5 @@
 -module(receive_client).
+-include("../ses.hrl").
 
 -behaviour(websocket_client_handler).
 
@@ -25,13 +26,13 @@ websocket_handle({pong, _}, _ConnState, State) ->
     {ok, State};
 
 websocket_handle({text, Msg}, _ConnState, State) ->
-    io:format("receive from server : ~p~n", [Msg]),
+    lager:info("receive text from server : ~p~n", [Msg]),
     %{reply, {text, Msg}, State}.
     {ok, State};
 
 
 websocket_handle({binary, Stream}, _ConnState, State) ->
-    io:format("receive stream: ~p~n", [Stream]),
+    lager:info("receive stream from server: ~p~n", [Stream]),
     {ok, State}.
 
 
