@@ -1,9 +1,9 @@
--module(send_client).
+-module(receive_client).
 
 -behaviour(websocket_client_handler).
 
 -export([
-         send/0,
+         receive_/0,
          start_link/1,
          init/2,
          websocket_handle/3,
@@ -15,7 +15,7 @@
 start_link(Ip) ->
     crypto:start(),
     ssl:start(),
-    websocket_client:start_link("ws://"++Ip++":8080/send", ?MODULE, []).
+    websocket_client:start_link("ws://"++Ip++":8080/receive", ?MODULE, []).
 
 init([], _ConnState) ->
     %websocket_client:cast(self(), {text, <<"init">>}),
@@ -25,9 +25,15 @@ websocket_handle({pong, _}, _ConnState, State) ->
     {ok, State};
 
 websocket_handle({text, Msg}, _ConnState, State) ->
-    io:format("receive from server : ~p", [Msg]),
+    io:format("receive from server : ~p~n", [Msg]),
     %{reply, {text, Msg}, State}.
+    {ok, State};
+
+
+websocket_handle({binary, Stream}, _ConnState, State) ->
+    io:format("receive stream: ~p~n", [Stream]),
     {ok, State}.
+
 
 
 
@@ -48,8 +54,8 @@ websocket_terminate(Reason, _ConnState, State) ->
               [State, Reason]),
     ok.
 
-send() ->
-    {ok, Pid} = send_client:start_link("127.0.0.1"),
-    websocket_client:cast(Pid , {text, <<"SEND#ronalfei">>}),
+receive_() ->
+    {ok, Pid} = ?MODULE:start_link("10.100.120.210"),
+    websocket_client:cast(Pid , {text, <<"RECEIVE#ronalfei">>}),
     ok.
     
